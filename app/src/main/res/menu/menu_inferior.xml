@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item
+        android:id="@+id/bibliotecaFragment"
+        android:icon="@drawable/ic_biblioteca"
+        android:title="Biblioteca" />
+
+    <item
+        android:id="@+id/busquedaFragment"
+        android:icon="@drawable/ic_busqueda"
+        android:title="Buscar" />
+
+    <item
+        android:id="@+id/favoritosFragment"
+        android:icon="@drawable/ic_favoritos"
+        android:title="Favoritos" />
+
+    <item
+        android:id="@+id/perfilFragment"
+        android:icon="@drawable/ic_perfil"
+        android:title="Perfil" />
+
 </menu>
