@@ -1,47 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:padding="12dp"
+        android:background="#FFFFFF">
 
         <ImageView
-            android:id="@+id/imagen_libro"
-            android:layout_width="60dp"
-            android:layout_height="90dp"
+            android:id="@+id/imagen_portada"
+            android:layout_width="70dp"
+            android:layout_height="100dp"
             android:scaleType="centerCrop"
-            android:background="#CCCCCC"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="#E0E0E0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <TextView
-            android:id="@+id/titulo_libro"
+            android:id="@+id/texto_titulo_libro"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="Título del Libro"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/imagen_libro"
-            app:layout_constraintTop_toTopOf="@id/imagen_libro" />
+            android:textColor="@color/marron_texto"
+            app:layout_constraintStart_toEndOf="@id/imagen_portada"
+            app:layout_constraintTop_toTopOf="@id/imagen_portada"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView
-            android:id="@+id/autor_libro"
+            android:id="@+id/texto_autor_libro"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Nombre del Autor"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/titulo_libro"
-            app:layout_constraintTop_toBottomOf="@id/titulo_libro" />
+            android:text="Autor del libro"
+            android:textColor="#757575"
+            app:layout_constraintStart_toStartOf="@id/texto_titulo_libro"
+            app:layout_constraintTop_toBottomOf="@id/texto_titulo_libro"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
