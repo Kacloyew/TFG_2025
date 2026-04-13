@@ -4,43 +4,89 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/fondo_crema"
-    android:padding="24dp">
+    android:background="#FDF5E6"
+    android:padding="20dp">
 
     <ImageView
-        android:id="@+id/foto_perfil"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginTop="60dp"
-        android:src="@android:drawable/ic_menu_gallery"
-        android:background="#DDDDDD"
+        android:id="@+id/btn_settings"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@android:drawable/ic_menu_manage"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:tint="#5D4037" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_avatar"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="20dp"
+        app:cardCornerRadius="50dp"
+        app:cardElevation="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/img_perfil_avatar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@android:drawable/ic_menu_report_image"
+            android:background="#E1BEE7" />
+    </androidx.cardview.widget.CardView>
 
     <TextView
-        android:id="@+id/nombre_usuario"
+        android:id="@+id/tv_nickname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Nombre de Usuario"
-        android:textSize="22sp"
+        android:layout_marginTop="10dp"
+        android:text="Nickname"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="@color/marron_texto"
-        app:layout_constraintTop_toBottomOf="@id/foto_perfil"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/card_avatar" />
+
+    <TextView
+        android:id="@+id/tv_libros_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="28 Libros"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_nickname" />
+
+    <TextView
+        android:id="@+id/label_ultima_lectura"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="Última Lectura"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_libros_count" />
+
+    <View
+        android:id="@+id/view_ultima_lectura"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginTop="10dp"
+        android:background="#D3D3D3"
+        app:layout_constraintTop_toBottomOf="@id/label_ultima_lectura" />
 
     <Button
-        android:id="@+id/boton_cerrar_sesion"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginBottom="32dp"
-        android:text="CERRAR SESIÓN"
-        android:backgroundTint="#D32F2F"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:id="@+id/btn_logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:backgroundTint="#DCC6A0"
+        android:text="Cerrar Sesión"
+        android:textAllCaps="false"
+        android:textColor="#5D4037"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/view_ultima_lectura" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
