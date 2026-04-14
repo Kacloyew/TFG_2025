@@ -4,89 +4,156 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FDF5E6"
-    android:padding="20dp">
+    android:background="#FDF5E6">
 
     <ImageView
         android:id="@+id/btn_settings"
         android:layout_width="24dp"
         android:layout_height="24dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
         android:src="@android:drawable/ic_menu_manage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="#5D4037" />
 
+    <TextView
+        android:id="@+id/tv_mi_perfil_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mi Perfil"
+        android:textSize="22sp"
+        android:fontFamily="serif"
+        app:layout_constraintTop_toTopOf="@id/btn_settings"
+        app:layout_constraintBottom_toBottomOf="@id/btn_settings"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <androidx.cardview.widget.CardView
-        android:id="@+id/card_avatar"
+        android:id="@+id/cv_perfil_avatar"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginTop="30dp"
         app:cardCornerRadius="50dp"
         app:cardElevation="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
+        app:layout_constraintTop_toBottomOf="@id/tv_mi_perfil_title">
         <ImageView
-            android:id="@+id/img_perfil_avatar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="#E1BEE7"
             android:scaleType="centerCrop"
-            android:src="@android:drawable/ic_menu_report_image"
-            android:background="#E1BEE7" />
+            android:src="@android:drawable/ic_menu_report_image" />
     </androidx.cardview.widget.CardView>
 
     <TextView
-        android:id="@+id/tv_nickname"
+        android:id="@+id/tv_nickname_perfil"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginStart="20dp"
         android:text="Nickname"
-        android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/card_avatar" />
+        android:textSize="18sp"
+        app:layout_constraintTop_toTopOf="@id/cv_perfil_avatar"
+        app:layout_constraintStart_toEndOf="@id/cv_perfil_avatar"
+        android:layout_marginTop="10dp"/>
 
     <TextView
-        android:id="@+id/tv_libros_count"
+        android:id="@+id/tv_libros_count_perfil"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="28 Libros"
         android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_nickname" />
+        app:layout_constraintTop_toBottomOf="@id/tv_nickname_perfil"
+        app:layout_constraintStart_toStartOf="@id/tv_nickname_perfil" />
 
     <TextView
-        android:id="@+id/label_ultima_lectura"
+        android:id="@+id/tv_bio_perfil"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="35dp"
+        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque pretium eget sapien quis facilisis."
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cv_perfil_avatar" />
+
+    <TextView
+        android:id="@+id/tv_web_perfil"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="10dp"
+        android:text="🌐 Mi Web"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@id/tv_bio_perfil"
+        app:layout_constraintTop_toBottomOf="@id/tv_bio_perfil" />
+
+    <TextView
+        android:id="@+id/lbl_last_read"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
         android:text="Última Lectura"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_libros_count" />
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@id/tv_web_perfil"
+        app:layout_constraintTop_toBottomOf="@id/tv_web_perfil" />
 
     <View
-        android:id="@+id/view_ultima_lectura"
-        android:layout_width="match_parent"
+        android:id="@+id/view_last_read_box"
+        android:layout_width="0dp"
         android:layout_height="100dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="35dp"
         android:background="#D3D3D3"
-        app:layout_constraintTop_toBottomOf="@id/label_ultima_lectura" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lbl_last_read" />
 
-    <Button
-        android:id="@+id/btn_logout"
+    <TextView
+        android:id="@+id/lbl_shelves"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:backgroundTint="#DCC6A0"
+        android:layout_marginTop="20dp"
+        android:text="Mis Estanterías"
+        app:layout_constraintStart_toStartOf="@id/view_last_read_box"
+        app:layout_constraintTop_toBottomOf="@id/view_last_read_box" />
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@android:drawable/ic_media_next"
+        app:layout_constraintBottom_toBottomOf="@id/lbl_shelves"
+        app:layout_constraintEnd_toEndOf="@id/view_last_read_box"
+        app:layout_constraintTop_toTopOf="@id/lbl_shelves"
+        app:tint="#000000" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_logout_perfil"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
+        android:background="#DCC6A0"
         android:text="Cerrar Sesión"
         android:textAllCaps="false"
         android:textColor="#5D4037"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/view_ultima_lectura" />
+        app:layout_constraintTop_toBottomOf="@id/lbl_shelves" />
+
+    <TextView
+        android:id="@+id/tv_delete_account_perfil"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="35dp"
+        android:text="Eliminar Cuenta"
+        android:textColor="#C62828"
+        android:textSize="11sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_logout_perfil" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

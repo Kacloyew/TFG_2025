@@ -2,60 +2,45 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FDF5E6"> <LinearLayout
-    android:id="@+id/container_search"
-    android:layout_width="0dp"
-    android:layout_height="50dp"
-    android:layout_marginHorizontal="20dp"
-    android:layout_marginTop="20dp"
-    android:background="@android:drawable/edit_text"
-    android:backgroundTint="#E0E0E0"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:paddingHorizontal="15dp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent">
-
-    <ImageView
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:src="@android:drawable/ic_menu_search"
-        app:tint="#808080" />
+    android:background="#FDF5E6">
 
     <EditText
-        android:id="@+id/input_buscar_libro"
+        android:id="@+id/et_buscar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:background="@android:color/transparent"
+        android:layout_height="50dp"
+        android:layout_marginHorizontal="25dp"
+        android:layout_marginTop="20dp"
+        android:background="@android:drawable/edit_text"
+        android:backgroundTint="#E0E0E0"
         android:hint="Buscar..."
-        android:textSize="16sp" />
-</LinearLayout>
+        android:paddingStart="40dp"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tv_resultado_titulo"
+        android:id="@+id/tv_res_titulo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="25dp"
         android:layout_marginTop="20dp"
         android:text="Resultado de busqueda"
-        android:textSize="20sp"
-        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="#000000"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/container_search" />
+        app:layout_constraintTop_toBottomOf="@id/et_buscar" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_resultados"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginHorizontal="20dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_resultado_titulo"
-        tools:listitem="@layout/item_libro_busqueda" />
+        android:layout_marginHorizontal="25dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/tv_res_titulo">
+
+        <View android:layout_width="match_parent" android:layout_height="70dp" android:background="#D3D3D3" android:layout_marginBottom="10dp"/>
+        <View android:layout_width="match_parent" android:layout_height="70dp" android:background="#D3D3D3" android:layout_marginBottom="10dp"/>
+        <View android:layout_width="match_parent" android:layout_height="70dp" android:background="#D3D3D3"/>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
