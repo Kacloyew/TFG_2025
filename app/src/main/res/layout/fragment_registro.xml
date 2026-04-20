@@ -98,5 +98,29 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/layout_fecha" />
 
+        <Button
+            android:id="@+id/boton_registrar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="#DCC6A0"
+            android:text="REGISTRARSE"
+            android:textColor="#5D4037"
+            app:layout_constraintTop_toBottomOf="@id/check_terminos" />
+
+        <TextView
+            android:id="@+id/texto_volver_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:text="¿Ya tienes cuenta? Inicia sesión"
+            android:textColor="#5D4037"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/boton_registrar" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

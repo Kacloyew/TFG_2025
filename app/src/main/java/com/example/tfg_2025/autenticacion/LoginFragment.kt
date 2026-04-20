@@ -1,11 +1,11 @@
-package com.example.tfg_2025.ui.autenticacion
+package com.example.tfg_2025
 
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.tfg_2025.R
+
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
 

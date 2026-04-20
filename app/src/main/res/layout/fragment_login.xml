@@ -12,7 +12,7 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginTop="50dp"
-        android:src="@android:drawable/ic_menu_book"
+        android:src="@android:drawable/ic_menu_search"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -54,7 +54,7 @@
         app:layout_constraintTop_toBottomOf="@id/et_login_email" />
 
     <Button
-        android:id="@+id/btn_entrar"
+        android:id="@+id/boton_ingresar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
@@ -72,6 +72,6 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_entrar" />
+        app:layout_constraintTop_toBottomOf="@id/boton_ingresar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
