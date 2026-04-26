@@ -4,77 +4,50 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FDF5E6"> <ImageView
-    android:id="@+id/icon_biblioteca"
-    android:layout_width="30dp"
-    android:layout_height="30dp"
-    android:layout_marginTop="20dp"
-    android:layout_marginStart="20dp"
-    android:src="@drawable/ic_biblioteca"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent" />
+    android:background="#FDF5E6">
 
     <TextView
-        android:id="@+id/tv_titulo_biblioteca"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Biblioteca"
-        android:textSize="24sp"
-        android:layout_marginStart="10dp"
-        app:layout_constraintBottom_toBottomOf="@id/icon_biblioteca"
-        app:layout_constraintStart_toEndOf="@id/icon_biblioteca"
-        app:layout_constraintTop_toTopOf="@id/icon_biblioteca" />
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/card_destacado"
-        android:layout_width="200dp"
-        android:layout_height="250dp"
-        android:layout_marginTop="30dp"
-        app:cardBackgroundColor="#FFFFFF"
-        app:cardElevation="2dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_titulo_biblioteca">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="10dp">
-
-            <ImageView
-                android:id="@+id/img_destacado"
-                android:layout_width="100dp"
-                android:layout_height="140dp"
-                android:background="#D3D3D3" /> <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:text="Título del libro"
-            android:textSize="14sp" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <TextView
-        android:id="@+id/tv_mis_libros"
+        android:id="@+id/tv_biblioteca_titulo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="30dp"
-        android:text="Mis libros leídos"
-        android:textSize="18sp"
+        android:text="Mis Libros"
+        android:textColor="#5D4037"
+        android:textSize="30sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/card_destacado" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_vacio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Aún no tienes libros en tu biblioteca"
+        android:textColor="#8B7355"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_biblioteca_titulo" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_leidos"
+        android:id="@+id/rv_biblioteca"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="10dp"
-        android:orientation="horizontal"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/tv_mis_libros" />
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_biblioteca_titulo" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_perfil"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:src="@android:drawable/ic_menu_agenda"
+        app:backgroundTint="#DCC6A0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="#5D4037" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
