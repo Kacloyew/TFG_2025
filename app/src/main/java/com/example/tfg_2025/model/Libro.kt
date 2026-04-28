@@ -1,12 +1,14 @@
 package com.example.tfg_2025.model
 
-/**
- * Esta clase es el "molde" para los libros.
- */
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "libros_table") // Esto le dice a Room que cree una tabla
 data class Libro(
-    val id: String,
+    @PrimaryKey val id: String, // El ID que nos da la API
     val titulo: String,
-    val autores: List<String>?,
-    val descripcion: String?,
-    val urlPortada: String?
+    val autor: String,
+    val descripcion: String,
+    val urlPortada: String,
+    val esFavorito: Boolean = false
 )

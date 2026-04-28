@@ -10,5 +10,6 @@ class FavoritosFragment : Fragment(R.layout.fragment_favoritos) {
     override fun onViewCreated(vista: View, savedInstanceState: Bundle?) {
         super.onViewCreated(vista, savedInstanceState)
 
+
     }
 }
