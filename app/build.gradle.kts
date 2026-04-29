@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("org.jetbrains.kotlin.kapt")
 }
 
 android {
@@ -35,6 +36,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        // Mantenemos compose por si acaso, aunque uses XML
         compose = true
     }
 }
@@ -50,17 +52,31 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.appcompat)
+
+
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
+    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.cardview:cardview:1.0.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+
+
+    val room_version = "2.6.1"
+    implementation("androidx.room:room-runtime:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+    // Aquí es donde KAPT hace su magia
+    kapt("androidx.room:room-compiler:$room_version")
+
+
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-    implementation("androidx.navigation:navigation-fragment:2.9.5")
-    implementation("androidx.navigation:navigation-ui:2.9.5")
-    implementation ("androidx.appcompat:appcompat:1.6.1")
-    implementation ("com.google.android.material:material:1.11.0")
-    implementation ("androidx.cardview:cardview:1.0.0")
-    implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
-    }
+}
