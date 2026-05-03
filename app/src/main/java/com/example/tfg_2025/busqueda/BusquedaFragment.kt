@@ -1,63 +1,88 @@
 package com.example.tfg_2025.ui.busqueda
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.tfg_2025.R
+import com.example.tfg_2025.databinding.FragmentBusquedaBinding
 import com.example.tfg_2025.adapter.LibroAdapter
 import com.example.tfg_2025.api.RetrofitClient
-import com.example.tfg_2025.databinding.FragmentBusquedaBinding
-import kotlinx.coroutines.launch
+import com.example.tfg_2025.repository.LibroRepository
+import com.example.tfg_2025.viewmodel.BusquedaViewModel
 
-class BusquedaFragment : Fragment(R.layout.fragment_busqueda) {
+class BusquedaFragment : Fragment() {
 
+    // View Binding
     private var _binding: FragmentBusquedaBinding? = null
     private val binding get() = _binding!!
+
+    // Inicialización del ViewModel y Repository
+    private val viewModel: BusquedaViewModel by lazy {
+        val repository = LibroRepository(RetrofitClient.instance)
+        BusquedaViewModel(repository)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentBusquedaBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Esta línea es la que vincula el XML con el código
-        _binding = FragmentBusquedaBinding.bind(view)
+        setupRecyclerView()
+        setupSearchView()
+        observeViewModel()
+    }
 
-        // 1. Configurar RecyclerView
+    private fun setupRecyclerView() {
         binding.rvResultados.layoutManager = LinearLayoutManager(requireContext())
 
-        // 2. Configurar el buscador
+    }
+
+    private fun setupSearchView() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (!query.isNullOrEmpty()) {
-                    buscarLibros(query)
+
+                    binding.layoutEspera.visibility = View.GONE
+                    binding.rvResultados.visibility = View.VISIBLE
+                    viewModel.buscarLibros(query)
+
+
+                    binding.searchView.clearFocus()
                 }
                 return true
             }
+
             override fun onQueryTextChange(newText: String?): Boolean = true
         })
     }
 
-    private fun buscarLibros(query: String) {
-        // Ocultar layout de espera y mostrar lista
-        binding.layoutEspera.visibility = View.GONE
-        binding.rvResultados.visibility = View.VISIBLE
+    private fun observeViewModel() {
+        // Observamos la lista de libros
+        viewModel.libros.observe(viewLifecycleOwner) { listaLibros ->
+            if (listaLibros.isNotEmpty()) {
+                binding.rvResultados.adapter = LibroAdapter(listaLibros)
+            } else {
+                Toast.makeText(requireContext(), "No se encontraron resultados", Toast.LENGTH_SHORT).show()
+            }
+        }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                // Llamada a la API
-                val respuesta = RetrofitClient.instance.buscarLibros(query)
-                val lista = respuesta.items ?: emptyList()
-
-                if (lista.isNotEmpty()) {
-                    binding.rvResultados.adapter = LibroAdapter(lista)
-                } else {
-                    Toast.makeText(requireContext(), "No se han encontrado resultados", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+        // Observamos posibles errores de red
+        viewModel.error.observe(viewLifecycleOwner) { mensajeError ->
+            mensajeError?.let {
+                Toast.makeText(requireContext(), "Error: $it", Toast.LENGTH_SHORT).show()
                 binding.layoutEspera.visibility = View.VISIBLE
+                binding.rvResultados.visibility = View.GONE
             }
         }
     }

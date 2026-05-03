@@ -36,13 +36,12 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
-        // Mantenemos compose por si acaso, aunque uses XML
         compose = true
+        viewBinding = true
     }
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -53,28 +52,23 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.appcompat)
 
-
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
-
     val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
-    // Aquí es donde KAPT hace su magia
     kapt("androidx.room:room-compiler:$room_version")
-
 
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
-
     implementation("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
-
+    implementation("androidx.databinding:viewbinding:8.2.2")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
