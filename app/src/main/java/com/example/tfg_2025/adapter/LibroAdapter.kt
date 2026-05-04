@@ -8,14 +8,14 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.tfg_2025.R
-import com.example.tfg_2025.model.BookItem
+import com.example.tfg_2025.model.Libro
 
-class LibroAdapter(private val libros: List<BookItem>) : RecyclerView.Adapter<LibroAdapter.LibroViewHolder>() {
+class LibroAdapter(private val libros: List<Libro>) : RecyclerView.Adapter<LibroAdapter.LibroViewHolder>() {
 
     class LibroViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val titulo: TextView = view.findViewById(R.id.tv_item_titulo)
-        val autor: TextView = view.findViewById(R.id.tv_item_autor)
-        val portada: ImageView = view.findViewById(R.id.iv_item_portada)
+        val titulo: TextView = view.findViewById(R.id.tv_libro_titulo)
+        val autor: TextView = view.findViewById(R.id.tv_libro_autor)
+        val portada: ImageView = view.findViewById(R.id.img_libro_portada)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LibroViewHolder {
@@ -25,12 +25,18 @@ class LibroAdapter(private val libros: List<BookItem>) : RecyclerView.Adapter<Li
 
     override fun onBindViewHolder(holder: LibroViewHolder, position: Int) {
         val libro = libros[position]
-        holder.titulo.text = libro.volumeInfo.title
-        holder.autor.text = libro.volumeInfo.authors?.joinToString(", ") ?: "Autor desconocido"
 
-        // Usamos Glide para cargar la imagen de internet
-        val url = libro.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
-        Glide.with(holder.itemView.context).load(url).into(holder.portada)
+        holder.titulo.text = libro.titulo ?: "Sin título"
+        holder.autor.text = libro.autor ?: "Autor desconocido"
+
+        // Cargamos la imagen
+        val url = libro.urlPortada?.replace("http://", "https://")
+
+        Glide.with(holder.itemView.context)
+            .load(url)
+            .placeholder(android.R.drawable.ic_menu_book)
+            .error(android.R.drawable.stat_notify_error)
+            .into(holder.portada)
     }
 
     override fun getItemCount() = libros.size

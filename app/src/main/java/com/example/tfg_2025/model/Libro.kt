@@ -2,13 +2,15 @@ package com.example.tfg_2025.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.gson.annotations.SerializedName
 
-@Entity(tableName = "libros_table") // Esto le dice a Room que cree una tabla
+@Entity(tableName = "libros_table")
 data class Libro(
-    @PrimaryKey val id: String, // El ID que nos da la API
-    val titulo: String,
-    val autor: String,
-    val descripcion: String,
-    val urlPortada: String,
-    val esFavorito: Boolean = false
+    @PrimaryKey
+    @SerializedName("id") val id: String,
+
+    @SerializedName("titulo") val titulo: String?,
+    @SerializedName("autor") val autor: String?,
+    @SerializedName("urlPortada") val urlPortada: String?
+
 )
