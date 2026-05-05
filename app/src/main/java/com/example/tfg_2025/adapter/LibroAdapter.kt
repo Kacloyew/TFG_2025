@@ -34,7 +34,7 @@ class LibroAdapter(private val libros: List<Libro>) : RecyclerView.Adapter<Libro
 
         Glide.with(holder.itemView.context)
             .load(url)
-            .placeholder(android.R.drawable.ic_menu_book)
+            .placeholder(android.R.drawable.ic_menu_gallery)
             .error(android.R.drawable.stat_notify_error)
             .into(holder.portada)
     }
