@@ -1,4 +1,4 @@
-package com.example.tfg_2025.busqueda
+package com.example.tfg_2025.ui.busqueda
 
 import android.os.Bundle
 import android.view.LayoutInflater
