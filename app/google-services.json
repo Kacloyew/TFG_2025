@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "48455986175",
+    "project_id": "tfg-libros-9742c",
+    "storage_bucket": "tfg-libros-9742c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:48455986175:android:09262eaeefc88434edd5ca",
+        "android_client_info": {
+          "package_name": "com.example.tfg_2025"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8Z6PcZh4ngck6oUNIKHmgrQWVgcBJuO0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

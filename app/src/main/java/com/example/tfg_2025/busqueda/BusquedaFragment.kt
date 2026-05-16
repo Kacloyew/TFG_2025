@@ -9,12 +9,17 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tfg_2025.adapter.LibroAdapter
 import com.example.tfg_2025.databinding.FragmentBusquedaBinding
-import com.example.tfg_2025.model.Libro
+import com.example.tfg_2025.viewmodel.BusquedaViewModel
+import com.example.tfg_2025.repository.LibroRepository
+import com.example.tfg_2025.api.RetrofitClient
 
 class BusquedaFragment : Fragment() {
 
     private var _binding: FragmentBusquedaBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var viewModel: BusquedaViewModel
+    private lateinit var libroAdapter: LibroAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,27 +32,54 @@ class BusquedaFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Configurar RecyclerView
+        // 1. Inicializar Adapter con lista vacía
+        libroAdapter = LibroAdapter(mutableListOf())
         binding.rvResultados.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvResultados.adapter = libroAdapter
 
-        // Configurar Buscador
+        // 2. ViewModel
+        val apiService = RetrofitClient.instance
+        val repository = LibroRepository(apiService)
+        viewModel = BusquedaViewModel(repository)
+
+        // 3. Observador
+        viewModel.libros.observe(viewLifecycleOwner) { listaLibros ->
+            if (listaLibros != null) {
+                // Actualizamos los datos
+                libroAdapter.updateList(listaLibros)
+
+                // Forzamos visibilidad
+                binding.layoutEspera.visibility = View.GONE
+                binding.rvResultados.visibility = View.VISIBLE
+
+                // Scroll al inicio por si había una búsqueda previa
+                binding.rvResultados.scrollToPosition(0)
+            }
+        }
+
+        // 4. Configurar Buscador (A prueba de errores)
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (!query.isNullOrEmpty()) {
-                    ejecutarBusqueda(query)
+                    viewModel.buscarLibros(query)
+
+
+                    binding.searchView.clearFocus()
+
+                    binding.layoutEspera.visibility = View.VISIBLE
+                    binding.rvResultados.visibility = View.GONE
                 }
                 return true
             }
 
-            override fun onQueryTextChange(newText: String?): Boolean = true
-        })
-    }
+            override fun onQueryTextChange(newText: String?): Boolean {
 
-    private fun ejecutarBusqueda(query: String) {
-        // Por ahora, ocultamos el mensaje de espera y mostramos el RV
-        binding.layoutEspera.visibility = View.GONE
-        binding.rvResultados.visibility = View.VISIBLE
-        
+                if (newText.isNullOrEmpty()) {
+                    libroAdapter.updateList(emptyList())
+                }
+                return true
+            }
+        })
     }
 
     override fun onDestroyView() {

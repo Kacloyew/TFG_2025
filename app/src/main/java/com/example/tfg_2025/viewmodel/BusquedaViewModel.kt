@@ -5,14 +5,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tfg_2025.model.Libro
+import com.example.tfg_2025.model.LibroRespuesta
 import com.example.tfg_2025.repository.LibroRepository
 import kotlinx.coroutines.launch
 
 class BusquedaViewModel(private val repository: LibroRepository) : ViewModel() {
 
 
-    private val _libros = MutableLiveData<List<Libro>>()
-    val libros: LiveData<List<Libro>> get() = _libros
+    private val _libros = MutableLiveData<List<LibroRespuesta.BookItem>>()
+    val libros: LiveData<List<LibroRespuesta.BookItem>> get() = _libros
 
 
     private val _error = MutableLiveData<String?>()
