@@ -11,6 +11,12 @@ data class Libro(
 
     @SerializedName("titulo") val titulo: String?,
     @SerializedName("autor") val autor: String?,
-    @SerializedName("urlPortada") val urlPortada: String?
+    @SerializedName("urlPortada") val urlPortada: String?,
 
+
+    var esFavorito: Boolean = false,
+    var estaEnEstanteria: Boolean = false,
+    var leyendo: Boolean = false,
+    var leido: Boolean = false,
+    var pendiente: Boolean = false
 )

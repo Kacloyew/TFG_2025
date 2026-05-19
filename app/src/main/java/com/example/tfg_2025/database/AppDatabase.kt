@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.tfg_2025.model.Libro
 
-@Database(entities = [Libro::class], version = 1)
+@Database(entities = [Libro::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun libroDao(): LibroDao
@@ -20,8 +20,12 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "biblioteca_db"
-                ).build()
+                    "libros_database"
+                )
+
+                    .fallbackToDestructiveMigration()
+                    .build()
+
                 INSTANCE = instance
                 instance
             }

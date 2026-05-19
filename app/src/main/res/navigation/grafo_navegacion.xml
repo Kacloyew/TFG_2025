@@ -11,11 +11,11 @@
         android:label="Login"
         tools:layout="@layout/fragment_login">
         <action
+            android:id="@+id/action_loginFragment_to_bibliotecaFragment"
+            app:destination="@id/nav_biblioteca" />
+        <action
             android:id="@+id/action_loginFragment_to_registroFragment"
             app:destination="@id/registroFragment" />
-        <action
-            android:id="@+id/action_loginFragment_to_bibliotecaFragment"
-            app:destination="@id/bibliotecaFragment" />
     </fragment>
 
     <fragment
@@ -28,24 +28,27 @@
             app:destination="@id/loginFragment" />
         <action
             android:id="@+id/action_registroFragment_to_bibliotecaFragment"
-            app:destination="@id/bibliotecaFragment" />
+            app:destination="@id/nav_biblioteca" />
     </fragment>
 
     <fragment
-        android:id="@+id/bibliotecaFragment"
+        android:id="@+id/nav_biblioteca"
         android:name="com.example.tfg_2025.ui.biblioteca.BibliotecaFragment"
         android:label="Biblioteca"
         tools:layout="@layout/fragment_biblioteca">
         <action
             android:id="@+id/action_bibliotecaFragment_to_perfilFragment"
-            app:destination="@id/perfilFragment" />
+            app:destination="@id/nav_perfil" />
         <action
             android:id="@+id/action_bibliotecaFragment_to_detalleLibroFragment"
             app:destination="@id/detalleLibroFragment" />
+        <action
+            android:id="@+id/action_bibliotecaFragment_to_verListaFragment"
+            app:destination="@id/verListaFragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/perfilFragment"
+        android:id="@+id/nav_perfil"
         android:name="com.example.tfg_2025.ui.perfil.PerfilFragment"
         android:label="Perfil"
         tools:layout="@layout/fragment_perfil">
@@ -55,7 +58,7 @@
         <action
             android:id="@+id/action_perfilFragment_to_loginFragment"
             app:destination="@id/loginFragment"
-            app:popUpTo="@id/loginFragment"
+            app:popUpTo="@id/grafo_navegacion"
             app:popUpToInclusive="true" />
     </fragment>
 
@@ -70,11 +73,34 @@
         android:label="EditarPerfilFragment" />
 
     <fragment
-        android:id="@+id/busquedaFragment"
-        android:name="com.example.tfg_2025.ui.busqueda.BusquedaFragment" />
+        android:id="@+id/nav_busqueda"
+        android:name="com.example.tfg_2025.ui.busqueda.BusquedaFragment"
+        android:label="Buscar" />
+
+    <action
+        android:id="@+id/action_busquedaFragment_to_detalleLibroFragment"
+        app:destination="@id/detalleLibroFragment" />
 
     <fragment
-        android:id="@+id/favoritosFragment"
-        android:name="com.example.tfg_2025.ui.favoritos.FavoritosFragment" />
+        android:id="@+id/nav_favoritos"
+        android:name="com.example.tfg_2025.ui.favoritos.FavoritosFragment"
+        android:label="Favoritos" />
+
+    <action
+        android:id="@+id/action_favoritosFragment_to_detalleLibroFragment"
+        app:destination="@id/detalleLibroFragment" />
+
+    <fragment
+        android:id="@+id/verListaFragment"
+        android:name="com.example.tfg_2025.ui.biblioteca.VerListaFragment"
+        android:label="Ver Lista"
+        tools:layout="@layout/fragment_ver_lista" />
+
+        <action
+            android:id="@+id/action_verListaFragment_to_detalleLibroFragment"
+            app:destination="@id/detalleLibroFragment" />
+
+
+
 
 </navigation>
