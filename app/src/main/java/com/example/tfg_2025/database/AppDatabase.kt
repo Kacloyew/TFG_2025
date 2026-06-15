@@ -14,21 +14,36 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
+        @Volatile
+        private var currentUserId: String? = null
 
-        fun getDatabase(context: Context): AppDatabase {
+        fun getDatabase(context: Context, userId: String): AppDatabase {
+            // Si cambia el usuario, destruir la instancia anterior
+            if (currentUserId != userId) {
+                INSTANCE?.close()
+                INSTANCE = null
+                currentUserId = userId
+            }
+
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "libros_database"
+                    "libros_database_$userId"
                 )
-
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigrationOnDowngrade()
                     .build()
 
                 INSTANCE = instance
                 instance
             }
+        }
+
+        // Llamar al hacer logout
+        fun cerrarDatabase() {
+            INSTANCE?.close()
+            INSTANCE = null
+            currentUserId = null
         }
     }
 }

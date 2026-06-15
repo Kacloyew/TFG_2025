@@ -15,12 +15,20 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.tfg_2025.R
 import com.example.tfg_2025.data.AppDatabase
+import com.example.tfg_2025.data.LibroDao
 import com.example.tfg_2025.model.Libro
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class DetalleLibroFragment : Fragment() {
+
+    private lateinit var switchLeyendo: SwitchCompat
+    private lateinit var switchLeido: SwitchCompat
+    private lateinit var switchPendiente: SwitchCompat
+    private lateinit var libroDao: LibroDao
+    private var idLibro: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,7 +40,11 @@ class DetalleLibroFragment : Fragment() {
     override fun onViewCreated(vista: View, savedInstanceState: Bundle?) {
         super.onViewCreated(vista, savedInstanceState)
 
-        val idLibro = arguments?.getString("id_libro") ?: ""
+
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        libroDao = AppDatabase.getDatabase(requireContext(), userId).libroDao()
+
+        idLibro = arguments?.getString("id_libro") ?: ""
         val titulo = arguments?.getString("titulo_libro") ?: "Sin título"
         val autor = arguments?.getString("autor_libro") ?: "Autor desconocido"
         val urlPortada = arguments?.getString("portada_libro") ?: ""
@@ -41,13 +53,13 @@ class DetalleLibroFragment : Fragment() {
         val tvAutor = vista.findViewById<TextView>(R.id.tv_detalle_autor)
         val imgPortada = vista.findViewById<ImageView>(R.id.img_detalle_portada)
         val botonAñadir = vista.findViewById<Button>(R.id.btn_añadir_biblioteca)
-        val switchLeyendo = vista.findViewById<SwitchCompat>(R.id.switch_leyendo)
-        val switchLeido = vista.findViewById<SwitchCompat>(R.id.switch_leido)
-        val switchPendiente = vista.findViewById<SwitchCompat>(R.id.switch_pendiente)
         val botonEliminar = vista.findViewById<Button>(R.id.btn_eliminar_biblioteca)
         val botonAtras = vista.findViewById<Button>(R.id.btn_detalle_atras)
 
-        // ← CAMBIO: de requireActivity().finish() a popBackStack()
+        switchLeyendo = vista.findViewById(R.id.switch_leyendo)
+        switchLeido = vista.findViewById(R.id.switch_leido)
+        switchPendiente = vista.findViewById(R.id.switch_pendiente)
+
         botonAtras.setOnClickListener {
             findNavController().popBackStack()
         }
@@ -63,59 +75,49 @@ class DetalleLibroFragment : Fragment() {
                 .into(imgPortada)
         }
 
-        val database = AppDatabase.getDatabase(requireContext())
-        val libroDao = database.libroDao()
-
         var switchesInicializados = false
 
-        // 1. Carga inicial del estado desde la BD
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             val libroExistente = libroDao.obtenerLibroPorId(idLibro)
-
             withContext(Dispatchers.Main) {
                 if (libroExistente != null) {
-                    switchesInicializados = false
-                    switchLeyendo?.isChecked = libroExistente.leyendo
-                    switchLeido?.isChecked = libroExistente.leido
-                    switchPendiente?.isChecked = libroExistente.pendiente
-                    switchesInicializados = true
-
-                    if (libroExistente.estaEnEstanteria) {
-                        botonAñadir?.visibility = View.GONE
-                        botonEliminar?.visibility = View.VISIBLE
-                    } else {
-                        botonEliminar?.visibility = View.GONE
-                    }
+                    switchLeyendo.isChecked = libroExistente.leyendo
+                    switchLeido.isChecked = libroExistente.leido
+                    switchPendiente.isChecked = libroExistente.pendiente
+                    botonAñadir?.visibility =
+                        if (libroExistente.estaEnEstanteria) View.GONE else View.VISIBLE
+                    botonEliminar?.visibility =
+                        if (libroExistente.estaEnEstanteria) View.VISIBLE else View.GONE
                 } else {
-                    switchesInicializados = true
                     botonEliminar?.visibility = View.GONE
                 }
             }
         }
 
-        // 2. Switches
-        val guardarEstadoSwitches = {
-            if (switchesInicializados) {
-                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    val libro = libroDao.obtenerLibroPorId(idLibro)
-                    if (libro != null) {
-                        libroDao.insertarLibro(
-                            libro.copy(
-                                leyendo = switchLeyendo?.isChecked ?: false,
-                                leido = switchLeido?.isChecked ?: false,
-                                pendiente = switchPendiente?.isChecked ?: false
-                            )
-                        )
-                    }
-                }
+        switchLeyendo.setOnClickListener {
+            if (switchLeyendo.isChecked) {
+                switchLeido.isChecked = false
+                switchPendiente.isChecked = false
             }
+            guardarEstadoSwitches()
         }
 
-        switchLeyendo?.setOnCheckedChangeListener { _, _ -> guardarEstadoSwitches() }
-        switchLeido?.setOnCheckedChangeListener { _, _ -> guardarEstadoSwitches() }
-        switchPendiente?.setOnCheckedChangeListener { _, _ -> guardarEstadoSwitches() }
+        switchLeido.setOnClickListener {
+            if (switchLeido.isChecked) {
+                switchLeyendo.isChecked = false
+                switchPendiente.isChecked = false
+            }
+            guardarEstadoSwitches()
+        }
 
-        // 3. Botón Añadir
+        switchPendiente.setOnClickListener {
+            if (switchPendiente.isChecked) {
+                switchLeyendo.isChecked = false
+                switchLeido.isChecked = false
+            }
+            guardarEstadoSwitches()
+        }
+
         botonAñadir?.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 val libroExistente = libroDao.obtenerLibroPorId(idLibro)
@@ -126,14 +128,14 @@ class DetalleLibroFragment : Fragment() {
                 libroDao.insertarLibro(libroAGuardar)
 
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "¡Añadido a tu librería!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "¡Añadido a tu librería!", Toast.LENGTH_SHORT)
+                        .show()
                     botonAñadir.visibility = View.GONE
                     botonEliminar?.visibility = View.VISIBLE
                 }
             }
         }
 
-        // 4. Botón Eliminar
         botonEliminar?.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 val libroExistente = libroDao.obtenerLibroPorId(idLibro)
@@ -150,7 +152,11 @@ class DetalleLibroFragment : Fragment() {
                     }
 
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), "Eliminado de la biblioteca", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            "Eliminado de la biblioteca",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         switchesInicializados = false
                         switchLeyendo?.isChecked = false
                         switchLeido?.isChecked = false
@@ -160,6 +166,40 @@ class DetalleLibroFragment : Fragment() {
                         botonEliminar?.visibility = View.GONE
                     }
                 }
+            }
+        }
+    }
+
+    private fun guardarEstadoSwitches() {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val libro = libroDao.obtenerLibroPorId(idLibro)
+
+            val libroAGuardar = libro?.copy(
+                estaEnEstanteria = true,  // ← forzar siempre
+                leyendo = switchLeyendo.isChecked,
+                leido = switchLeido.isChecked,
+                pendiente = switchPendiente.isChecked
+            ) ?: Libro(
+                id = idLibro,
+                titulo = arguments?.getString("titulo_libro") ?: "",
+                autor = arguments?.getString("autor_libro") ?: "",
+                urlPortada = arguments?.getString("portada_libro") ?: "",
+                esFavorito = false,
+                estaEnEstanteria = true,  // ← forzar siempre
+                leyendo = switchLeyendo.isChecked,
+                leido = switchLeido.isChecked,
+                pendiente = switchPendiente.isChecked
+            )
+
+            libroDao.insertarLibro(libroAGuardar)
+
+            withContext(Dispatchers.Main) {
+                // Solo mostramos botón eliminar si está en estantería
+                val enEstanteria = libroAGuardar.estaEnEstanteria
+                view?.findViewById<Button>(R.id.btn_añadir_biblioteca)?.visibility =
+                    if (enEstanteria) View.GONE else View.VISIBLE
+                view?.findViewById<Button>(R.id.btn_eliminar_biblioteca)?.visibility =
+                    if (enEstanteria) View.VISIBLE else View.GONE
             }
         }
     }

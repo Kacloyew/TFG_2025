@@ -10,9 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.tfg_2025.R
 import com.example.tfg_2025.adapter.LibroBibliotecaAdapter
 import com.example.tfg_2025.data.AppDatabase
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class FavoritosFragment : Fragment(R.layout.fragment_favoritos) {
 
@@ -25,24 +25,25 @@ class FavoritosFragment : Fragment(R.layout.fragment_favoritos) {
         recyclerView = vista.findViewById(R.id.rv_favoritos)
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
 
-        // IMPORTANTE: Aquí pasas los TRES parámetros que requiere el nuevo Adaptador
         libroAdapter = LibroBibliotecaAdapter(
             mutableListOf(),
             onFavoritoClick = { libro ->
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    AppDatabase.getDatabase(requireContext()).libroDao().update(libro)
+                    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                    AppDatabase.getDatabase(requireContext(), userId).libroDao().insertarLibro(libro)
                 }
             },
             onItemClick = { libro ->
-                // Navegación al detalle
                 val bundle = Bundle().apply {
                     putString("id_libro", libro.id)
                     putString("titulo_libro", libro.titulo)
                     putString("autor_libro", libro.autor)
                     putString("portada_libro", libro.urlPortada)
                 }
-                // Asegúrate de que esta acción existe en nav_graph.xml
-                findNavController().navigate(R.id.action_favoritosFragment_to_detalleLibroFragment, bundle)
+                findNavController().navigate(
+                    R.id.action_favoritosFragment_to_detalleLibroFragment,
+                    bundle
+                )
             }
         )
 
@@ -51,21 +52,15 @@ class FavoritosFragment : Fragment(R.layout.fragment_favoritos) {
     }
 
     private fun cargarLibrosFavoritos() {
-        val database = AppDatabase.getDatabase(requireContext())
-        val libroDao = database.libroDao()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        val libroDao = AppDatabase.getDatabase(requireContext(), userId).libroDao()
 
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            val listaFavoritos = libroDao.obtenerLibrosFavoritos()
-
-            withContext(Dispatchers.Main) {
-                if (!isAdded || context == null) return@withContext
+        viewLifecycleOwner.lifecycleScope.launch {
+            libroDao.obtenerLibrosFavoritos().collect { listaFavoritos ->
                 libroAdapter.updateList(listaFavoritos.toMutableList())
             }
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        cargarLibrosFavoritos()
-    }
+
 }

@@ -2,9 +2,7 @@ package com.example.tfg_2025.ui.biblioteca
 
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -15,7 +13,9 @@ import com.example.tfg_2025.R
 import com.example.tfg_2025.adapter.LibroBibliotecaAdapter
 import com.example.tfg_2025.data.AppDatabase
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -27,7 +27,6 @@ class BibliotecaFragment : Fragment(R.layout.fragment_biblioteca) {
     private lateinit var layoutContenido: LinearLayout
     private lateinit var imgDestacado: ImageView
     private lateinit var tvTituloDestacado: TextView
-    private var ultimoClicTime: Long = 0
 
     override fun onViewCreated(vista: View, savedInstanceState: Bundle?) {
         super.onViewCreated(vista, savedInstanceState)
@@ -45,7 +44,12 @@ class BibliotecaFragment : Fragment(R.layout.fragment_biblioteca) {
             mutableListOf(),
             onFavoritoClick = { libro ->
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    AppDatabase.getDatabase(requireContext()).libroDao().update(libro)
+                    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                    AppDatabase.getDatabase(requireContext(), userId).libroDao()
+                        .actualizarEstadoFavorito(libro.id, !libro.esFavorito)
+                    withContext(Dispatchers.Main) {
+                        recyclerView.adapter?.notifyDataSetChanged()
+                    }
                 }
             },
             onItemClick = { libro ->
@@ -57,86 +61,69 @@ class BibliotecaFragment : Fragment(R.layout.fragment_biblioteca) {
                 }
                 findNavController().navigate(R.id.action_bibliotecaFragment_to_detalleLibroFragment, bundle)
             },
-            esHorizontal = true  // ← nuevo
+            esHorizontal = true
         )
 
         recyclerView.adapter = libroAdapter
+        cargarLibrosBiblioteca()
 
         fab.setOnClickListener {
-            if (System.currentTimeMillis() - ultimoClicTime < 500) return@setOnClickListener
-            ultimoClicTime = System.currentTimeMillis()
             findNavController().navigate(R.id.action_bibliotecaFragment_to_perfilFragment)
         }
 
-        val abrirListaFiltrada: (String) -> Unit = { tipo ->
-            if (System.currentTimeMillis() - ultimoClicTime >= 600) {
-                ultimoClicTime = System.currentTimeMillis()
-                val bundle = Bundle().apply { putString("tipo_lista", tipo) }
-                try {
-                    findNavController().navigate(R.id.action_bibliotecaFragment_to_verListaFragment, bundle)
-                } catch (e: Exception) {
-                    findNavController().navigate(R.id.verListaFragment, bundle)
-                }
-            }
+        val navegarConTipo: (String) -> Unit = { tipo ->
+            val bundle = Bundle().apply { putString("tipo_lista", tipo) }
+            findNavController().navigate(R.id.action_bibliotecaFragment_to_verListaFragment, bundle)
         }
 
-        vista.findViewById<View>(R.id.btn_ver_leyendo)?.setOnClickListener { abrirListaFiltrada("leyendo") }
-        vista.findViewById<View>(R.id.btn_ver_leidos)?.setOnClickListener { abrirListaFiltrada("leidos") }
-        vista.findViewById<View>(R.id.btn_ver_pendientes)?.setOnClickListener { abrirListaFiltrada("pendientes") }
+        vista.findViewById<Button>(R.id.btn_ver_leyendo).setOnClickListener { navegarConTipo("leyendo") }
+        vista.findViewById<Button>(R.id.btn_ver_leidos).setOnClickListener { navegarConTipo("leidos") }
+        vista.findViewById<Button>(R.id.btn_ver_pendientes).setOnClickListener { navegarConTipo("pendientes") }
     }
 
     private fun cargarLibrosBiblioteca() {
-        if (!isAdded || context == null) return
+        if (!isAdded) return
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        val libroDao = AppDatabase.getDatabase(requireContext(), userId).libroDao()
 
-        val libroDao = AppDatabase.getDatabase(requireContext()).libroDao()
+        viewLifecycleOwner.lifecycleScope.launch {
 
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            val listaLeyendo = libroDao.obtenerLibrosLeyendo()
-            val listaCompleta = libroDao.obtenerLibrosEstanteria()
-            val listaUltimosLeidos = libroDao.obtenerLibrosLeidos().take(5)
-            val todosLibros = libroDao.obtenerTodosLosLibros()
+            val deferredLeyendo  = async(Dispatchers.IO) { libroDao.obtenerLibrosLeyendo() }
+            val deferredCompleta = async(Dispatchers.IO) { libroDao.obtenerLibrosEstanteria() }
+            val deferredLeidos   = async(Dispatchers.IO) { libroDao.obtenerLibrosLeidos() }
 
-            android.util.Log.d("BIBLIOTECA", "Leídos: ${listaUltimosLeidos.size}")
-            android.util.Log.d("BIBLIOTECA", "En estantería: ${listaCompleta.size}")
-            android.util.Log.d("BIBLIOTECA", "Total en BD: ${todosLibros.size}")
-            todosLibros.forEach {
-                android.util.Log.d("BIBLIOTECA", "${it.titulo} | leido=${it.leido} | estanteria=${it.estaEnEstanteria}")
-            }
+            val leyendo  = deferredLeyendo.await()
+            val completa = deferredCompleta.await()
+            val leidos   = deferredLeidos.await()
 
-            withContext(Dispatchers.Main) {
-                if (!isAdded) return@withContext
+            if (completa.isEmpty()) {
+                tvVacio.visibility = View.VISIBLE
+                layoutContenido.visibility = View.GONE
+            } else {
+                tvVacio.visibility = View.GONE
+                layoutContenido.visibility = View.VISIBLE
 
-                if (listaCompleta.isEmpty()) {
-                    tvVacio.visibility = View.VISIBLE
-                    layoutContenido.visibility = View.GONE
-                } else {
-                    tvVacio.visibility = View.GONE
-                    layoutContenido.visibility = View.VISIBLE
+                val libroDestacado = leyendo.firstOrNull() ?: completa.first()
+                tvTituloDestacado.text = libroDestacado.titulo
 
-                    val libroDestacado = listaLeyendo.firstOrNull() ?: listaCompleta.first()
-                    tvTituloDestacado.text = libroDestacado.titulo ?: "Sin título"
-
-                    if (!libroDestacado.urlPortada.isNullOrEmpty()) {
-                        Glide.with(requireContext())
-                            .load(libroDestacado.urlPortada)
-                            .placeholder(R.drawable.ic_menu_libro)
-                            .error(R.drawable.ic_menu_libro)
-                            .into(imgDestacado)
+                imgDestacado.setOnClickListener {
+                    val bundle = Bundle().apply {
+                        putString("id_libro", libroDestacado.id)
+                        putString("titulo_libro", libroDestacado.titulo)
+                        putString("autor_libro", libroDestacado.autor)
+                        putString("portada_libro", libroDestacado.urlPortada)
                     }
-
-                    imgDestacado.setOnClickListener {
-                        val id = libroDestacado.id ?: return@setOnClickListener
-                        val bundle = Bundle().apply {
-                            putString("id_libro", id)
-                            putString("titulo_libro", libroDestacado.titulo ?: "")
-                            putString("autor_libro", libroDestacado.autor ?: "")
-                            putString("portada_libro", libroDestacado.urlPortada ?: "")
-                        }
-                        findNavController().navigate(R.id.action_bibliotecaFragment_to_detalleLibroFragment, bundle)
-                    }
-
-                    libroAdapter.updateList(listaUltimosLeidos.toMutableList())
+                    findNavController().navigate(R.id.action_bibliotecaFragment_to_detalleLibroFragment, bundle)
                 }
+
+                if (!libroDestacado.urlPortada.isNullOrEmpty()) {
+                    Glide.with(requireContext())
+                        .load(libroDestacado.urlPortada)
+                        .centerCrop()
+                        .into(imgDestacado)
+                }
+
+                libroAdapter.updateList(leidos.toMutableList())
             }
         }
     }

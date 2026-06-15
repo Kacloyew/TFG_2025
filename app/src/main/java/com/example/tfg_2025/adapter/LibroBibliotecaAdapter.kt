@@ -38,7 +38,8 @@ class LibroBibliotecaAdapter(
             Glide.with(holder.itemView.context).load(libro.urlPortada).into(holder.portada)
         }
 
-        val icono = if (libro.esFavorito) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off
+        val icono =
+            if (libro.esFavorito) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off
         holder.estrella.setImageResource(icono)
 
         holder.itemView.setOnClickListener {
@@ -46,10 +47,14 @@ class LibroBibliotecaAdapter(
         }
 
         holder.estrella.setOnClickListener {
-            libro.esFavorito = !libro.esFavorito
-            onFavoritoClick(libro)
-            val nuevoIcono = if (libro.esFavorito) android.R.drawable.btn_star_big_on else android.R.drawable.btn_star_big_off
+            val nuevoEstado = !libro.esFavorito
+            libro.esFavorito = nuevoEstado
+
+            val nuevoIcono = if (nuevoEstado) android.R.drawable.btn_star_big_on
+            else android.R.drawable.btn_star_big_off
             holder.estrella.setImageResource(nuevoIcono)
+
+            onFavoritoClick(libro)  // Le pasa el libro con el estado ya actualizado
         }
     }
 

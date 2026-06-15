@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.tfg_2025.R
+import com.example.tfg_2025.data.AppDatabase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -38,17 +39,15 @@ class PerfilFragment : Fragment(R.layout.fragment_perfil) {
                 .get()
                 .addOnSuccessListener { doc ->
                     if (doc != null && doc.exists()) {
-                        // Carga de textos
                         tvNombre.text = doc.getString("nombre") ?: user.email ?: "Usuario"
                         tvBio.text = doc.getString("bio") ?: ""
                         tvWeb.text = doc.getString("web") ?: ""
 
-                        // Carga de imagen DENTRO del bloque para tener acceso a 'doc'
                         val fotoUrl = doc.getString("fotoUrl")
                         if (!fotoUrl.isNullOrEmpty()) {
                             Glide.with(requireContext())
                                 .load(fotoUrl)
-                                .placeholder(R.drawable.ic_menu_libro) // Pon un placeholder tuyo
+                                .placeholder(R.drawable.ic_menu_libro)
                                 .circleCrop()
                                 .into(imgAvatar)
                         }
@@ -67,9 +66,19 @@ class PerfilFragment : Fragment(R.layout.fragment_perfil) {
         }
 
         botonSalir.setOnClickListener {
+            // Primero cerrar la BD, luego el logout
+            AppDatabase.cerrarDatabase()
             auth.signOut()
-            // Usamos navOptions para limpiar la pila al salir y evitar el error de NavController
-            findNavController().navigate(R.id.action_perfilFragment_to_loginFragment)
+
+            val opciones = androidx.navigation.NavOptions.Builder()
+                .setPopUpTo(R.id.grafo_navegacion, true)
+                .build()
+
+            findNavController().navigate(
+                R.id.action_perfilFragment_to_loginFragment,
+                null,
+                opciones
+            )
         }
     }
 }

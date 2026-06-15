@@ -7,15 +7,16 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tfg_2025.R
 import com.example.tfg_2025.adapter.LibroBibliotecaAdapter
 import com.example.tfg_2025.data.AppDatabase
+import com.example.tfg_2025.model.Libro
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class VerListaFragment : Fragment(R.layout.fragment_ver_lista) {
 
@@ -25,73 +26,75 @@ class VerListaFragment : Fragment(R.layout.fragment_ver_lista) {
     override fun onViewCreated(vista: View, savedInstanceState: Bundle?) {
         super.onViewCreated(vista, savedInstanceState)
 
-        // Recuperar tipo de lista
-        tipoLista = (arguments?.getString("tipo_lista") ?: "leidos").lowercase().trim()
-
-        // UI
         val tvTitulo = vista.findViewById<TextView>(R.id.tv_titulo_lista)
         val btnAtras = vista.findViewById<Button>(R.id.btn_lista_atras)
         val rvLista = vista.findViewById<RecyclerView>(R.id.rv_lista_completa)
 
+        tipoLista = (arguments?.getString("tipo_lista") ?: "leidos").lowercase().trim()
+
         tvTitulo.text = when (tipoLista) {
-            "leyendo" -> "Libros Leyendo"
-            "leidos" -> "Libros Leídos"
+            "leyendo"    -> "Libros Leyendo"
+            "leidos"     -> "Libros Leídos"
             "pendientes" -> "Libros Pendientes"
-            else -> "Mis Libros"
+            else         -> "Mis Libros"
         }
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : androidx.activity.OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    findNavController().navigate(R.id.nav_biblioteca)
+                }
+            }
+        )
 
         btnAtras.setOnClickListener {
-            parentFragmentManager.popBackStack()
+            btnAtras.isEnabled = false
+            findNavController().navigate(R.id.nav_biblioteca)
         }
 
-        // Configuración del adaptador con los 3 parámetros requeridos
         rvLista.layoutManager = LinearLayoutManager(requireContext())
 
         adapter = LibroBibliotecaAdapter(
             mutableListOf(),
             onFavoritoClick = { libro ->
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    AppDatabase.getDatabase(requireContext()).libroDao().update(libro)
+                    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                    AppDatabase.getDatabase(requireContext(), userId).libroDao().insertarLibro(libro)
                 }
             },
             onItemClick = { libroSeleccionado ->
-                // Navegación al detalle
                 val bundle = Bundle().apply {
                     putString("id_libro", libroSeleccionado.id)
                     putString("titulo_libro", libroSeleccionado.titulo)
                     putString("autor_libro", libroSeleccionado.autor)
                     putString("portada_libro", libroSeleccionado.urlPortada)
                 }
-                findNavController().navigate(R.id.action_verListaFragment_to_detalleLibroFragment, bundle)
+                findNavController().navigate(
+                    R.id.action_verListaFragment_to_detalleLibroFragment, bundle
+                )
             }
         )
 
         rvLista.adapter = adapter
+        cargarLista()
     }
 
     private fun cargarLista() {
-        if (!isAdded || context == null) return
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        val dao = AppDatabase.getDatabase(requireContext(), userId).libroDao()
 
-        val libroDao = AppDatabase.getDatabase(requireContext()).libroDao()
+        val flujo: Flow<List<Libro>> = when (tipoLista) {
+            "leyendo"    -> dao.obtenerLibrosLeyendoFlow()
+            "leidos"     -> dao.obtenerLibrosLeidosFlow()
+            "pendientes" -> dao.obtenerLibrosPendientesFlow()
+            else         -> dao.obtenerLibrosEstanteriaFlow()
+        }
 
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            val librosFiltrados = when (tipoLista) {
-                "leyendo" -> libroDao.obtenerLibrosLeyendo()
-                "leidos" -> libroDao.obtenerLibrosLeidos()
-                "pendientes" -> libroDao.obtenerLibrosPendientes()
-                else -> emptyList()
-            }
-
-            withContext(Dispatchers.Main) {
-                if (isAdded && context != null) {
-                    adapter.updateList(librosFiltrados.toMutableList())
-                }
+        viewLifecycleOwner.lifecycleScope.launch {
+            flujo.collect { lista ->
+                adapter.updateList(lista.toMutableList())
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        cargarLista()
     }
 }

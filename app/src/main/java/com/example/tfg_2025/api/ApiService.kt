@@ -8,6 +8,7 @@ interface ApiService {
     @GET("search.json")
     suspend fun buscarLibros(
         @Query("q") query: String,
-        @Query("limit") limit: Int
+        @Query("limit") limit: Int,
+        //@Query("lang") lang: String = "spa"
     ): LibroRespuesta
 }

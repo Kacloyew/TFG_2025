@@ -15,6 +15,7 @@ import com.example.tfg_2025.api.RetrofitClient
 import com.example.tfg_2025.data.AppDatabase
 import com.example.tfg_2025.repository.LibroRepository
 import com.example.tfg_2025.viewmodel.BusquedaViewModel
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -25,32 +26,31 @@ class BusquedaFragment : Fragment(R.layout.fragment_busqueda) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 1. Configuración del ViewModel
-        val repository = LibroRepository(RetrofitClient.instance)
-        val libroDao = AppDatabase.getDatabase(requireContext()).libroDao()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        val libroDao = AppDatabase.getDatabase(requireContext(), userId).libroDao()
+        val repository = LibroRepository(RetrofitClient.instance, libroDao)
 
         val factory = object : ViewModelProvider.Factory {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
                 return BusquedaViewModel(repository, libroDao) as T
             }
+
         }
         viewModel = ViewModelProvider(this, factory)[BusquedaViewModel::class.java]
 
-        // 2. Configuración de Vistas
         val searchView = view.findViewById<SearchView>(R.id.search_view)
         val recyclerView = view.findViewById<RecyclerView>(R.id.rv_resultados)
         val layoutEspera = view.findViewById<View>(R.id.layout_espera)
 
-        // Inicialización con 3 parámetros: Lista, Favorito, Navegación
         val adapter = LibroBibliotecaAdapter(
             mutableListOf(),
             onFavoritoClick = { libro ->
                 viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                    AppDatabase.getDatabase(requireContext()).libroDao().update(libro)
+                    val uid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+                    AppDatabase.getDatabase(requireContext(), uid).libroDao().insertarLibro(libro)
                 }
             },
             onItemClick = { libroSeleccionado ->
-                // Navegación usando la acción que definiste en el XML
                 val bundle = Bundle().apply {
                     putString("id_libro", libroSeleccionado.id)
                     putString("titulo_libro", libroSeleccionado.titulo)
@@ -64,11 +64,12 @@ class BusquedaFragment : Fragment(R.layout.fragment_busqueda) {
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // 3. Observar resultados
         viewModel.libros.observe(viewLifecycleOwner) { libros ->
-            layoutEspera.visibility = if (libros.isEmpty()) View.VISIBLE else View.GONE
-            recyclerView.visibility = if (libros.isNotEmpty()) View.VISIBLE else View.GONE
-            adapter.updateList(libros.toMutableList())
+            if (libros != null) {
+                layoutEspera.visibility = if (libros.isEmpty()) View.VISIBLE else View.GONE
+                recyclerView.visibility = if (libros.isNotEmpty()) View.VISIBLE else View.GONE
+                adapter.updateList(libros.toMutableList())
+            }
         }
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {

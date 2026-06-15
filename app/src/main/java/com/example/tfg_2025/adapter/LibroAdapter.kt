@@ -14,6 +14,7 @@ import com.example.tfg_2025.R
 import com.example.tfg_2025.data.AppDatabase
 import com.example.tfg_2025.model.Libro
 import com.example.tfg_2025.ui.biblioteca.DetalleLibroFragment
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -57,10 +58,10 @@ class LibroAdapter(private var libros: MutableList<Libro>) :
             holder.portada.setImageResource(R.drawable.ic_menu_libro)
         }
 
-        val database = AppDatabase.getDatabase(contexto)
-        val libroDao = database.libroDao()
+        //Obtener userId aquí para usarlo en todas las operaciones de BD
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+        val libroDao = AppDatabase.getDatabase(contexto, userId).libroDao()
 
-        // Comprobamos el estado real del libro en la base de datos para pintar la estrella correctamente
         CoroutineScope(Dispatchers.IO).launch {
             val libroEnBD = libroDao.obtenerLibroPorId(libro.id)
             val existeEnFavs = libroEnBD?.esFavorito == true
@@ -76,7 +77,6 @@ class LibroAdapter(private var libros: MutableList<Libro>) :
             }
         }
 
-        // Configuración del botón de la estrella (Favoritos)
         holder.iconoFavorito.setOnClickListener {
             val estadoActual = holder.iconoFavorito.tag as? String ?: "off"
 
@@ -87,10 +87,8 @@ class LibroAdapter(private var libros: MutableList<Libro>) :
 
                 CoroutineScope(Dispatchers.IO).launch {
                     val libroExistente = libroDao.obtenerLibroPorId(libro.id)
-                    // Si ya existía (por estar en la estantería), activamos esFavorito conservando la estantería
                     val libroAGuardar = libroExistente?.copy(esFavorito = true)
                         ?: libro.copy(esFavorito = true, estaEnEstanteria = false)
-
                     libroDao.insertarLibro(libroAGuardar)
                 }
             } else {
@@ -102,11 +100,8 @@ class LibroAdapter(private var libros: MutableList<Libro>) :
                     val libroExistente = libroDao.obtenerLibroPorId(libro.id)
                     if (libroExistente != null) {
                         if (libroExistente.estaEnEstanteria) {
-                            // Si está en la estantería, NO lo borramos, solo le apagamos el favorito
-                            val libroModificado = libroExistente.copy(esFavorito = false)
-                            libroDao.insertarLibro(libroModificado)
+                            libroDao.insertarLibro(libroExistente.copy(esFavorito = false))
                         } else {
-                            // Si tampoco estaba en la estantería, lo borramos de la base de datos por completo
                             libroDao.eliminarLibro(libroExistente)
                         }
                     }
@@ -118,7 +113,6 @@ class LibroAdapter(private var libros: MutableList<Libro>) :
             val actividad = contexto as? AppCompatActivity
             if (actividad != null) {
                 val fragmentoDetalle = DetalleLibroFragment()
-
                 val datos = Bundle().apply {
                     putString("id_libro", libro.id ?: "")
                     putString("titulo_libro", libro.titulo ?: "Sin título")
@@ -126,7 +120,6 @@ class LibroAdapter(private var libros: MutableList<Libro>) :
                     putString("portada_libro", libro.urlPortada ?: "")
                 }
                 fragmentoDetalle.arguments = datos
-
                 actividad.supportFragmentManager.beginTransaction()
                     .replace(R.id.nav_host_fragment, fragmentoDetalle)
                     .addToBackStack(null)
